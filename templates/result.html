@@ -1,0 +1,243 @@
+{% extends "base.html" %}
+{% block title %}Results - PII Redaction System{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<div class="d-flex align-items-center justify-content-between flex-wrap mb-4 gap-2">
+    <div>
+        <h4 class="mb-1" style="font-weight: 700;">
+            <i class="bi bi-check-circle-fill me-1" style="color: var(--accent-green);"></i> Processing Complete
+        </h4>
+        <p class="mb-0" style="color: var(--text-muted); font-size: 0.9rem;">
+            <span style="font-weight: 600; color: var(--text-secondary);">{{ result.filename }}</span>
+            &middot; <span class="badge badge-glow-blue">{{ result.doc_type }}</span>
+            &middot; {{ result.processing_time }}s
+        </p>
+    </div>
+    <div class="d-flex gap-2">
+        <a href="{{ url_for('download', filename=result.redacted_name) }}" class="btn btn-success">
+            <i class="bi bi-download me-1"></i> Download Redacted
+        </a>
+        <a href="{{ url_for('dashboard') }}" class="btn btn-outline-primary">
+            <i class="bi bi-plus-circle me-1"></i> New Upload
+        </a>
+    </div>
+</div>
+
+<!-- Stats Row -->
+<div class="row g-3 mb-4">
+    <div class="col-4 col-md-2">
+        <div class="stat-card stat-red">
+            <div class="stat-value" style="color: var(--accent-red);">{{ result.summary.total_pii }}</div>
+            <div class="stat-label">Total PII</div>
+        </div>
+    </div>
+    <div class="col-4 col-md-2">
+        <div class="stat-card stat-purple">
+            <div class="stat-value" style="color: var(--accent-purple);">{{ result.summary.full_redacted }}</div>
+            <div class="stat-label">Full Redacted</div>
+        </div>
+    </div>
+    <div class="col-4 col-md-2">
+        <div class="stat-card stat-orange">
+            <div class="stat-value" style="color: var(--accent-orange);">{{ result.summary.partial_masked }}</div>
+            <div class="stat-label">Partial Mask</div>
+        </div>
+    </div>
+    <div class="col-4 col-md-2">
+        <div class="stat-card stat-green">
+            <div class="stat-value" style="color: var(--accent-green);">{{ result.summary.kept }}</div>
+            <div class="stat-label">Kept</div>
+        </div>
+    </div>
+    <div class="col-4 col-md-2">
+        <div class="stat-card stat-blue">
+            <div class="stat-value" style="color: var(--accent-blue);">{{ result.stats.regex_detections }}</div>
+            <div class="stat-label">Regex Hits</div>
+        </div>
+    </div>
+    <div class="col-4 col-md-2">
+        <div class="stat-card stat-cyan">
+            <div class="stat-value" style="color: var(--accent-cyan);">{{ result.stats.ner_detections }}</div>
+            <div class="stat-label">NER Hits</div>
+        </div>
+    </div>
+</div>
+
+<!-- Image Comparison -->
+<p class="section-title"><i class="bi bi-images me-1"></i> Document Comparison</p>
+<div class="row g-4 mb-4">
+    <div class="col-md-6">
+        <div class="card img-compare-card" style="border: none;">
+            <div class="card-header">
+                <i class="bi bi-file-earmark-image me-2"></i> Original Document
+            </div>
+            <div class="card-body text-center p-3">
+                <span class="img-label badge-glow-blue">Original</span>
+                <img src="{{ url_for('static', filename='uploads/' + result.original_name) }}" 
+                     class="img-fluid">
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card img-compare-card" style="border: none;">
+            <div class="card-header" style="border-bottom-color: rgba(239, 68, 68, 0.3);">
+                <i class="bi bi-shield-fill-check me-2" style="color: var(--accent-red);"></i> Redacted Document
+            </div>
+            <div class="card-body text-center p-3">
+                <span class="img-label badge-solid-red">Redacted</span>
+                <img src="{{ url_for('static', filename='redacted/' + result.redacted_name) }}" 
+                     class="img-fluid">
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Text Comparison -->
+<p class="section-title"><i class="bi bi-file-text me-1"></i> Text Comparison</p>
+<div class="row g-4 mb-4">
+    <div class="col-md-6">
+        <div class="card" style="border: none;">
+            <div class="card-header">
+                <i class="bi bi-fonts me-2"></i> Extracted Text (OCR)
+            </div>
+            <div class="card-body">
+                <pre class="p-3 mb-0" style="max-height: 280px; overflow-y: auto; white-space: pre-wrap; font-size: 0.82rem;">{{ result.extracted_text }}</pre>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card" style="border: none;">
+            <div class="card-header" style="border-bottom-color: rgba(239, 68, 68, 0.3);">
+                <i class="bi bi-file-lock2-fill me-2" style="color: var(--accent-red);"></i> Redacted Text
+            </div>
+            <div class="card-body">
+                <pre class="p-3 mb-0" style="max-height: 280px; overflow-y: auto; white-space: pre-wrap; font-size: 0.82rem;">{{ result.redacted_text }}</pre>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- PII Detection Table -->
+<div class="card mb-4" style="border: none;">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <span><i class="bi bi-table me-2"></i> Detected PII Details</span>
+        {% if result.detections %}
+        <span class="badge badge-solid-red">{{ result.detections|length }} items</span>
+        {% endif %}
+    </div>
+    <div class="card-body p-0">
+        {% if result.detections %}
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>PII Type</th>
+                        <th>Value</th>
+                        <th>Source</th>
+                        <th>Confidence</th>
+                        <th>Decision</th>
+                        <th>Severity</th>
+                        <th>Regulation</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for det in result.detections %}
+                    <tr>
+                        <td style="color: var(--text-muted);">{{ loop.index }}</td>
+                        <td><span class="badge badge-glow-blue">{{ det.type }}</span></td>
+                        <td><code>{{ det.value }}</code></td>
+                        <td>
+                            {% if det.source == 'HYBRID' %}
+                                <span class="badge badge-glow-purple">HYBRID</span>
+                            {% elif det.source == 'REGEX' %}
+                                <span class="badge badge-glow-green">REGEX</span>
+                            {% else %}
+                                <span class="badge badge-glow-cyan">NER</span>
+                            {% endif %}
+                        </td>
+                        <td style="min-width: 120px;">
+                            <div class="progress" style="height: 18px;">
+                                <div class="progress-bar 
+                                    {% if det.confidence >= 0.9 %}bg-success
+                                    {% elif det.confidence >= 0.7 %}bg-warning
+                                    {% else %}bg-danger{% endif %}" 
+                                    style="width: {{ (det.confidence * 100)|int }}%;">
+                                    {{ (det.confidence * 100)|int }}%
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            {% if det.decision == 'FULL_REDACT' %}
+                                <span class="badge badge-solid-red">REDACT</span>
+                            {% elif det.decision == 'PARTIAL_MASK' %}
+                                <span class="badge badge-glow-orange">MASK</span>
+                            {% else %}
+                                <span class="badge badge-solid-green">KEEP</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if det.severity == 'CRITICAL' %}
+                                <span class="badge badge-solid-red">CRITICAL</span>
+                            {% elif det.severity == 'HIGH' %}
+                                <span class="badge badge-glow-red">HIGH</span>
+                            {% elif det.severity == 'MEDIUM' %}
+                                <span class="badge badge-glow-yellow">MEDIUM</span>
+                            {% else %}
+                                <span class="badge badge-glow-blue">LOW</span>
+                            {% endif %}
+                        </td>
+                        <td style="color: var(--text-muted); font-size: 0.8rem;">{{ det.regulation }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <div class="empty-icon"><i class="bi bi-check-circle"></i></div>
+            <h5>No PII Detected</h5>
+            <p>This document appears to be clean</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- AI Detection Stats -->
+<div class="card" style="border: none;">
+    <div class="card-header">
+        <i class="bi bi-bar-chart-fill me-2"></i> AI Detection Statistics
+    </div>
+    <div class="card-body">
+        <div class="row g-4 text-center">
+            <div class="col-md-4">
+                <p class="section-title mb-2">Detection Sources</p>
+                <div class="d-flex justify-content-center gap-2 flex-wrap">
+                    <span class="badge badge-glow-green" style="font-size: 0.85rem; padding: 0.5em 1em;">
+                        Regex: {{ result.stats.regex_detections }}
+                    </span>
+                    <span class="badge badge-glow-cyan" style="font-size: 0.85rem; padding: 0.5em 1em;">
+                        NER: {{ result.stats.ner_detections }}
+                    </span>
+                    <span class="badge badge-glow-purple" style="font-size: 0.85rem; padding: 0.5em 1em;">
+                        Hybrid: {{ result.stats.hybrid_confirmed }}
+                    </span>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <p class="section-title mb-2">Avg. Confidence</p>
+                <div class="progress mx-auto" style="height: 26px; max-width: 250px;">
+                    <div class="progress-bar bg-success" style="width: {{ (result.stats.average_confidence * 100)|int }}%;">
+                        {{ (result.stats.average_confidence * 100)|int }}%
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <p class="section-title mb-2">Processing Time</p>
+                <div class="stat-value" style="color: var(--accent-blue); font-size: 2rem;">{{ result.processing_time }}s</div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
