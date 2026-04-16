@@ -27,6 +27,7 @@ env/
 .env
 .env.local
 .env.production
+.env.*
 
 # ========================
 # IDE / Editor
@@ -51,10 +52,18 @@ ehthumbs.db
 # ========================
 # Uploads & Redacted Output
 # ========================
+uploads/*
+uploads/redacted/*
+!uploads/.gitkeep
+!uploads/redacted/.gitkeep
 static/uploads/*
 static/redacted/*
 !static/uploads/.gitkeep
 !static/redacted/.gitkeep
+PII/uploads/*
+PII/uploads/redacted/*
+!PII/uploads/.gitkeep
+!PII/uploads/redacted/.gitkeep
 
 # ========================
 # Logs
@@ -73,12 +82,29 @@ static/redacted/*
 # Dataset (large / private)
 # ========================
 PII-DATASET/
+PII/PII-DATASET/
 
 # ========================
 # Installers & Binaries
 # ========================
 *.exe
 *.msi
+*.zip
+*.rar
+*.7z
+*.tar
+*.gz
+
+# ========================
+# Flutter / Dart
+# ========================
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+.pub/
+.pub-cache/
+**/build/
 
 # ========================
 # Reports / Docs (optional)
