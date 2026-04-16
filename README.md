@@ -1,5 +1,12 @@
 # PII Fullstack Redaction Platform
 
+![PII Fullstack Banner](.github/assets/banner.svg)
+
+[![GitHub Stars](https://img.shields.io/github/stars/Da-ya7/PII_FULLSTACK?style=for-the-badge&logo=github)](https://github.com/Da-ya7/PII_FULLSTACK/stargazers)
+[![GitHub Forks](https://img.shields.io/github/forks/Da-ya7/PII_FULLSTACK?style=for-the-badge&logo=github)](https://github.com/Da-ya7/PII_FULLSTACK/network/members)
+[![GitHub Issues](https://img.shields.io/github/issues/Da-ya7/PII_FULLSTACK?style=for-the-badge&logo=github)](https://github.com/Da-ya7/PII_FULLSTACK/issues)
+[![Last Commit](https://img.shields.io/github/last-commit/Da-ya7/PII_FULLSTACK?style=for-the-badge&logo=git)](https://github.com/Da-ya7/PII_FULLSTACK/commits/main)
+
 [![GitHub Repo](https://img.shields.io/badge/repo-PII__FULLSTACK-181717?logo=github)](https://github.com/Da-ya7/PII_FULLSTACK)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB?logo=python&logoColor=white)](https://www.python.org/)
