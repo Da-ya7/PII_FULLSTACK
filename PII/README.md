@@ -1,106 +1,97 @@
-# PII Redaction — Flutter Mobile App
+# PII Application
 
-Mobile client for the **Secure PII Redaction System** Flask backend.
+[![Flutter](https://img.shields.io/badge/Flutter-Client-02569B?logo=flutter&logoColor=white)](https://flutter.dev/)
+[![Flask](https://img.shields.io/badge/Flask-API-000000?logo=flask&logoColor=white)](https://flask.palletsprojects.com/)
+[![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB?logo=python&logoColor=white)](https://www.python.org/)
+[![MySQL](https://img.shields.io/badge/MySQL-8.x-4479A1?logo=mysql&logoColor=white)](https://www.mysql.com/)
 
-## Project structure
+This folder contains the complete app implementation:
 
+- Flutter frontend for authentication, upload, result visualization, and audit logs.
+- Flask backend that orchestrates OCR, PII detection, policy decisions, and redaction.
+- AI modules for regex, NER, hybrid fusion, and policy-aware redaction decisions.
+
+## Folder Overview
+
+```text
+PII/
+├─ lib/                     # Flutter client
+├─ modules/                 # AI engines and redaction pipeline
+├─ app.py                   # Flask API server
+├─ auth.py                  # Authentication logic
+├─ database.py              # DB connection and helpers
+├─ config.py                # Environment-driven configuration
+├─ requirements.txt         # Backend dependencies
+├─ pubspec.yaml             # Flutter dependencies
+├─ schema.sql               # Database schema
+├─ RUNNING_GUIDE.md
+└─ TESTING_GUIDE.md
 ```
-lib/
-├── main.dart                    # App entry point
-├── theme/
-│   └── app_theme.dart           # Material 3 theme
-├── services/
-│   └── api_service.dart         # All HTTP calls to Flask backend
-├── providers/
-│   ├── auth_provider.dart       # Login/register state
-│   └── document_provider.dart  # Upload & result state
-├── models/
-│   ├── detection_result.dart    # PiiDetection, ProcessingStats
-│   └── audit_log.dart           # AuditLog
-└── screens/
-    ├── splash_screen.dart
-    ├── login_screen.dart
-    ├── register_screen.dart
-    ├── dashboard_screen.dart    # Upload & select doc type
-    ├── result_screen.dart       # PII detections + stats
-    └── audit_logs_screen.dart   # Processing history
-```
+
+## Prerequisites
+
+- Python 3.10+
+- Flutter SDK
+- MySQL 8+
+- Tesseract OCR installed and accessible
 
 ## Setup
 
-### 1. Install Flutter
-https://docs.flutter.dev/get-started/install
+### 1. Configure Backend Environment
 
-### 2. Install dependencies
 ```bash
-flutter pub get
+copy .env.example .env
 ```
 
-For backend (Flask + AI), from `D:\PII\PII`:
+Update `.env` values for your machine.
+
+### 2. Install Backend Dependencies
+
 ```bash
+python -m venv .venv
+# Windows
+.venv\Scripts\activate
 pip install -r requirements.txt
 python -m spacy download en_core_web_sm
 ```
 
-AI module loading priority in backend:
-- `AI_MODULES_DIR` (if set)
-- local modules at `D:\PII\PII\modules`
-- shared workspace fallback at `D:\PII\modules`
+### 3. Install Flutter Dependencies
 
-### 3. Point to your Flask server
-Open `lib/services/api_service.dart` and change:
-```dart
-static const String baseUrl = 'http://127.0.0.1:5000';
-```
-
-- **Android emulator**: use `http://10.0.2.2:5000`
-- **Physical device**: use your machine's local IP, e.g. `http://192.168.1.100:5000`
-- **Production**: use your deployed domain
-
-### 4. Android network permissions
-Add to `android/app/src/main/AndroidManifest.xml` inside `<manifest>`:
-```xml
-<uses-permission android:name="android.permission.INTERNET"/>
-<uses-permission android:name="android.permission.CAMERA"/>
-<uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
-```
-
-For HTTP (non-HTTPS) on Android, also add inside `<application>`:
-```xml
-android:usesCleartextTraffic="true"
-```
-
-### 5. iOS permissions
-Add to `ios/Runner/Info.plist`:
-```xml
-<key>NSCameraUsageDescription</key>
-<string>Required to photograph identity documents</string>
-<key>NSPhotoLibraryUsageDescription</key>
-<string>Required to select document images</string>
-```
-
-### 6. Run
 ```bash
-flutter run
+flutter pub get
 ```
 
-Run backend separately:
+### 4. Run Backend
+
 ```bash
 python app.py
 ```
 
-Quick integration check:
-- Open `/api/health` and verify `ai.loaded = true`
-- Verify `ai.source` points to the intended modules path
+Health check:
 
-## Guides
+```text
+http://127.0.0.1:5000/api/health
+```
 
-- [Running Guide](RUNNING_GUIDE.md)
-- [Testing Guide](TESTING_GUIDE.md)
+### 5. Run Frontend (Web)
+
+```bash
+flutter run -d chrome --dart-define=API_BASE_URL=http://127.0.0.1:5000 --web-port=5080
+```
+
+## API Summary
+
+- `POST /login` and `POST /register` for account flow.
+- `POST /api/process` for upload and PII redaction.
+- `GET /api/health` for service health and AI module status.
+- `GET /audit-logs` for processing history.
+
+## Development Guides
+
+- [RUNNING_GUIDE.md](RUNNING_GUIDE.md)
+- [TESTING_GUIDE.md](TESTING_GUIDE.md)
 
 ## Notes
 
-- The app calls `/api/process` (JSON endpoint) for document processing.
-- Session cookies are captured after login and sent with all subsequent requests.
-- The audit logs screen requires the Flask server to return JSON from `/audit-logs`
-  (you may need to add `Accept: application/json` handling or a separate `/api/audit-logs` endpoint).
+- Client service layer is implemented in [lib/services/api_service.dart](lib/services/api_service.dart).
+- Runtime output folders (uploads/redacted) and local env files are git-ignored.
