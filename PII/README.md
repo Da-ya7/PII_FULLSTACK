@@ -73,10 +73,30 @@ Health check:
 http://127.0.0.1:5000/api/health
 ```
 
-### 5. Run Frontend (Web)
+### 5. Run Frontend
 
 ```bash
 flutter run -d chrome --dart-define=API_BASE_URL=http://127.0.0.1:5000 --web-port=5080
+```
+
+### 6. Run on Android Mobile
+
+For an Android emulator:
+
+```bash
+flutter run -d android
+```
+
+For a physical phone, start the backend on a network-accessible host and pass that URL:
+
+```bash
+flutter run -d android --dart-define=API_BASE_URL=http://<your-pc-ip>:5000
+```
+
+If you want an installable build:
+
+```bash
+flutter build apk --release --dart-define=API_BASE_URL=http://<your-pc-ip>:5000
 ```
 
 ## API Summary
@@ -94,4 +114,5 @@ flutter run -d chrome --dart-define=API_BASE_URL=http://127.0.0.1:5000 --web-por
 ## Notes
 
 - Client service layer is implemented in [lib/services/api_service.dart](lib/services/api_service.dart).
+- The mobile app can talk to the Flask backend directly; a physical device needs the backend host IP, not `localhost`.
 - Runtime output folders (uploads/redacted) and local env files are git-ignored.

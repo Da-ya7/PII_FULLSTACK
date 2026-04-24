@@ -7,11 +7,27 @@ import 'web_download_stub.dart'
 
 class ApiService {
   // Override with --dart-define=API_BASE_URL=http://<host>:5000 when needed.
-  // Default works for Android emulator talking to a local Flask backend.
-  static const String baseUrl = String.fromEnvironment(
-    'API_BASE_URL',
-    defaultValue: 'http://10.0.2.2:5000',
-  );
+  // Defaults are chosen per platform so the app works on emulators and local desktop.
+  static String get baseUrl {
+    const override = String.fromEnvironment('API_BASE_URL', defaultValue: '');
+    if (override.isNotEmpty) {
+      return override;
+    }
+
+    if (kIsWeb) {
+      return 'http://127.0.0.1:5000';
+    }
+
+    if (Platform.isAndroid) {
+      return 'http://10.0.2.2:5000';
+    }
+
+    if (Platform.isIOS) {
+      return 'http://localhost:5000';
+    }
+
+    return 'http://127.0.0.1:5000';
+  }
   static const String fingerprintToken = 'device_fingerprint_token';
   static String? _sessionCookieValue;
   static String? _authTokenValue;

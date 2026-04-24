@@ -25,6 +25,8 @@ curl http://127.0.0.1:5000/api/health
 
 ## Manual UI Test Flow
 
+### Web
+
 ### 1. Register
 
 - Open `http://localhost:5080`
@@ -67,6 +69,16 @@ curl http://127.0.0.1:5000/api/health
 - Upload works in Chrome using browser-safe byte uploads
 - Download works in Chrome using browser-safe download handling
 - AI redaction produces a processed file and result summary
+
+## Android Mobile Smoke Test
+
+1. Start the backend on a reachable IP address.
+2. Launch the app with `flutter run -d android --dart-define=API_BASE_URL=http://<your-pc-ip>:5000`.
+3. Register and log in on the phone.
+4. Set PIN and verify fingerprint setup if the device supports it.
+5. Upload a test document from the phone gallery or files app.
+6. Process the document and confirm the redacted output screen loads.
+7. Download or share the processed file if your Android version allows it.
 
 ## Common Issues
 

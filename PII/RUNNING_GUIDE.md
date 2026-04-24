@@ -53,12 +53,38 @@ flutter run -d chrome --dart-define=API_BASE_URL=http://127.0.0.1:5000 --web-por
 Frontend URL:
 - `http://localhost:5080`
 
+## Frontend Setup (Android Mobile)
+
+### Android Emulator
+
+Run the app directly:
+
+```bash
+flutter run -d android
+```
+
+### Physical Android Phone
+
+1. Connect the phone over USB or keep it on the same Wi-Fi network as the backend.
+2. Start the backend on a machine reachable from the phone.
+3. Run:
+
+```bash
+flutter run -d android --dart-define=API_BASE_URL=http://<your-pc-ip>:5000
+```
+
+### Release APK
+
+```bash
+flutter build apk --release --dart-define=API_BASE_URL=http://<your-pc-ip>:5000
+```
+
 ## Recommended Run Order
 
 1. Start MySQL.
 2. Start backend and confirm `/api/health` is success.
-3. Start Flutter frontend.
-4. Open `http://localhost:5080`.
+3. Start Flutter frontend for web or Android.
+4. Open the web app at `http://localhost:5080`, or install/run the Android build on your phone.
 
 ## Browser Notes / White Screen Fix
 
